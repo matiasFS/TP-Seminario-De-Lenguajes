@@ -26,7 +26,7 @@ GREEN_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_green_sm
 BLUE_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_blue_small.png"))
 
 # Player player
-YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "ship2 recortado.png"))
+NAVE_JUGADOR = pygame.image.load(os.path.join("assets", "ship2 recortado.png"))
 
 # Lasers
 RED_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_red.png"))
@@ -106,7 +106,7 @@ class Ship:
 class Player(Ship):
     def __init__(self, x, y, health=100):
         super().__init__(x, y, health)
-        self.ship_img = YELLOW_SPACE_SHIP
+        self.ship_img = pygame.transform.scale(NAVE_JUGADOR, (101,78))
         self.laser_img = YELLOW_LASER
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.max_health = health
