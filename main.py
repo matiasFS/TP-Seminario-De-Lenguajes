@@ -18,7 +18,7 @@ VIOLETA = (117, 53, 228)
 
 
 #Fuente
-fuente = pygame.font.SysFont("freesans", 45)
+fuente = pygame.font.SysFont(None, 50)
 
 # Load images
 RED_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png"))
@@ -185,7 +185,7 @@ def main():
     def redraw_window():
         WIN.blit(BG, (0,0))
         # draw text
-        lives_label = main_font.render(f"Vidas: {lives}", 1, (255,255,255))
+        lives_label = main_font.render(f"lives: {lives}", 1, (255,255,255))
 
         WIN.blit(lives_label, (10, 10))
 
@@ -263,12 +263,23 @@ def mensaje(msg, color, txt_x, txt_y):
 
 def menu_Comienzo():
     WIN.fill(NEGRO)
-    mensaje("JUEGO GALAGA", VIOLETA, 210, 110)
-    mensaje("[1] Comenzar a Jugar", BLANCO, 180, 200)
-    mensaje("[2] Salir del Juego", BLANCO, 180, 400)
+    mensaje("JUEGO GALAGA", VIOLETA, 200, 110)
+    mensaje("[1] Comenzar a Jugar", BLANCO, 200, 200)
+    mensaje("[2] Instrucciones", BLANCO, 200, 300)
+    mensaje("[3] Salir", BLANCO, 200, 400)
+
+
     pygame.display.update()
 
 
+def instrucciones():
+    WIN.fill(NEGRO)
+    mensaje("INSTRUCCIONES", VIOLETA, 200, 100)
+    mensaje("-Teclas de acción: [W][A][S][D][ESPACIO].", BLANCO, 20, 200)
+    mensaje("-Presionar ESC para pausar.", BLANCO, 20, 300)
+    mensaje("-Si una bala te impacta, perdés vida.", BLANCO, 20, 400)
+    pygame.display.update()
+    time.sleep(5)
 
 
 fin_Juego = False
@@ -281,6 +292,8 @@ while not fin_Juego:
             if event.key == pygame.K_1:
                  main()
             if event.key == pygame.K_2:
+                 instrucciones()
+            if event.key == pygame.K_3:
                 pygame.display.quit()
                 fin_Juego = True
 
