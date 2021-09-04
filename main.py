@@ -6,7 +6,19 @@ pygame.font.init()
 
 WIDTH, HEIGHT = 750, 800
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Space Invaders")
+pygame.display.set_caption("GALAGA")
+
+#Colores
+NEGRO   = (0, 0, 0)
+BLANCO  = (255, 255, 255)
+VERDE   = (0, 255, 0)
+ROJO    = (255, 0, 0)
+AZUL    = (0, 0, 255)
+VIOLETA = (117, 53, 228)
+
+
+#Fuente
+fuente = pygame.font.SysFont("freesans", 45)
 
 # Load images
 RED_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png"))
@@ -148,6 +160,7 @@ def collide(obj1, obj2):
     offset_y = obj2.y - obj1.y
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
+
 def main():
     run = True
     FPS = 60
@@ -172,7 +185,7 @@ def main():
     def redraw_window():
         WIN.blit(BG, (0,0))
         # draw text
-        lives_label = main_font.render(f"Lives: {lives}", 1, (255,255,255))
+        lives_label = main_font.render(f"Vidas: {lives}", 1, (255,255,255))
 
         WIN.blit(lives_label, (10, 10))
 
@@ -242,20 +255,34 @@ def main():
 
         player.move_lasers(-laser_vel, enemies)
 
-def main_menu():
-    title_font = pygame.font.SysFont("comicsans", 70)
-    run = True
-    while run:
-        WIN.blit(BG, (0,0))
-        title_label = title_font.render("Press the mouse to begin...", 1, (255,255,255))
-        WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 350))
-        pygame.display.update()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                main()
-    pygame.quit()
+
+def mensaje(msg, color, txt_x, txt_y):
+    txt_pantalla = fuente.render(msg, True, color)
+    WIN.blit(txt_pantalla, [txt_x, txt_y])
 
 
-main_menu()
+def menu_Comienzo():
+    WIN.fill(NEGRO)
+    mensaje("JUEGO GALAGA", VIOLETA, 210, 110)
+    mensaje("[1] Comenzar a Jugar", BLANCO, 180, 200)
+    mensaje("[2] Salir del Juego", BLANCO, 180, 400)
+    pygame.display.update()
+
+
+
+
+fin_Juego = False
+while not fin_Juego:
+    menu_Comienzo()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+                fin_Juego = True     
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_1:
+                 main()
+            if event.key == pygame.K_2:
+                pygame.display.quit()
+                fin_Juego = True
+
+          
+pygame.display.quit()                 
