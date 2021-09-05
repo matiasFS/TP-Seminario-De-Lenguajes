@@ -3,6 +3,7 @@ import os
 import time
 import random
 pygame.font.init()
+pygame.mixer.init()
 
 WIDTH, HEIGHT = 750, 800
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -36,6 +37,11 @@ YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"
 
 # Background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))
+
+# Sonidos
+SONIDO_LASER_JUGADOR = pygame.mixer.Sound(os.path.join("assets", "sonido_laser2.wav"))
+SONIDO_LASER_ENEMIGO = pygame.mixer.Sound(os.path.join("assets", "sonido_laser3.wav"))
+SONIDO_EXPLOSION = pygame.mixer.Sound(os.path.join("assets", "sonido_explosion.wav"))
 
 class Laser:
     def __init__(self, x, y, img):
@@ -93,6 +99,7 @@ class Ship:
     def shoot(self):
         if self.cool_down_counter == 0:
             laser = Laser(self.x, self.y, self.laser_img)
+            SONIDO_LASER_JUGADOR.play()
             self.lasers.append(laser)
             self.cool_down_counter = 1
 
@@ -120,6 +127,7 @@ class Player(Ship):
             else:
                 for obj in objs:
                     if laser.collision(obj):   ## Colision del laser con el enemigo
+                        SONIDO_EXPLOSION.play()
                         objs.remove(obj)      
                         if laser in self.lasers:
                             self.lasers.remove(laser)
