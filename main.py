@@ -17,9 +17,11 @@ ROJO    = (255, 0, 0)
 AZUL    = (0, 0, 255)
 VIOLETA = (117, 53, 228)
 
-
 #Fuente
 fuente = pygame.font.SysFont(None, 50)
+
+# Reloj para la funcion Pausa
+clock = pygame.time.Clock()
 
 # Load images
 RED_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png"))
@@ -169,6 +171,28 @@ def collide(obj1, obj2):
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
 
+def pausa():
+    pausado = True
+    while pausado == True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.K_ESCAPE:
+                    pausado = False
+            elif event.key == pygame.K_q:
+                    pygame.quit()
+                    quit()
+        WIN.fill(NEGRO)
+        pygame.draw.rect(WIN,NEGRO, (110,160,550,200))
+        mensaje("PAUSA", ROJO, 300, 200)
+        mensaje("Presiona ESC para continuar", BLANCO, 150, 270)
+        mensaje("Presiona Q para salir", BLANCO, 150, 320)
+        pygame.display.update()
+        clock.tick(5)
+
+
+
 def main():
     run = True
     FPS = 60
@@ -230,7 +254,10 @@ def main():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.display.quit()
                 quit()
+
+
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a] and player.x - player_vel > 0: # left
@@ -242,7 +269,11 @@ def main():
         if keys[pygame.K_s] and player.y + player_vel + player.get_height() + 15 < HEIGHT: # down
             player.y += player_vel
         if keys[pygame.K_SPACE]:
-            player.shoot()
+            player.shoot()    
+
+
+
+    
 
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
@@ -300,7 +331,7 @@ while not fin_Juego:
             if event.key == pygame.K_1:
                  main()
             if event.key == pygame.K_2:
-                 instrucciones()
+                 instrucciones()    
             if event.key == pygame.K_3:
                 pygame.display.quit()
                 fin_Juego = True
