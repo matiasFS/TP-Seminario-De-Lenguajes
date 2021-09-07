@@ -2,6 +2,8 @@ import pygame
 import os
 import time
 import random
+
+from pygame.constants import KEYDOWN
 pygame.font.init()
 pygame.mixer.init()
 
@@ -172,26 +174,30 @@ def collide(obj1, obj2):
 
 
 def pausa():
+
     pausado = True
-    while pausado == True:
+
+    while pausado:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pausado = False
                 pygame.quit()
-                quit()
-            if event.type == pygame.K_ESCAPE:
+                exit()
+            if event.type == pygame.KEYDOWN:   
+                if event.key == pygame.K_ESCAPE:
                     pausado = False
-            elif event.key == pygame.K_q:
+                if event.key == pygame.K_q:
+                    pausado = False
                     pygame.quit()
-                    quit()
+                    exit()  
+
         WIN.fill(NEGRO)
         pygame.draw.rect(WIN,NEGRO, (110,160,550,200))
-        mensaje("PAUSA", ROJO, 300, 200)
+        mensaje("PAUSA", VIOLETA, 300, 200)
         mensaje("Presiona ESC para continuar", BLANCO, 150, 270)
         mensaje("Presiona Q para salir", BLANCO, 150, 320)
-        pygame.display.update()
-        clock.tick(5)
-
-
+        pygame.display.update()                
+        
 
 def main():
     run = True
@@ -252,11 +258,6 @@ def main():
                 enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1500, -100), random.choice(["red", "blue", "green"]))
                 enemies.append(enemy)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.display.quit()
-                quit()
-
 
 
         keys = pygame.key.get_pressed()
@@ -271,9 +272,6 @@ def main():
         if keys[pygame.K_SPACE]:
             player.shoot()    
 
-
-
-    
 
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
@@ -293,6 +291,16 @@ def main():
                 enemies.remove(enemy)
 
         player.move_lasers(-laser_vel, enemies)
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.display.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pausa()
 
 
 def mensaje(msg, color, txt_x, txt_y):
