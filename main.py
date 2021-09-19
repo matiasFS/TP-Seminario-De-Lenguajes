@@ -86,7 +86,7 @@ class Ship:
             laser.draw(window)
 
     def move_lasers(self, vel, obj):
-        self.cooldown()
+        #self.cooldown()
         for laser in self.lasers:
             laser.move(vel)
             if laser.off_screen(HEIGHT):
@@ -103,7 +103,7 @@ class Ship:
 
     def shoot(self):
         if self.cool_down_counter == 0:
-            laser = Laser(self.x, self.y, self.laser_img)
+            laser = Laser(self.x+3, self.y, self.laser_img)
             SONIDO_LASER_JUGADOR.play()
             self.lasers.append(laser)
             self.cool_down_counter = 1
@@ -156,15 +156,16 @@ class Enemy(Ship):
         super().__init__(x, y)
         self.ship_img, self.laser_img = self.COLOR_MAP[color]
         self.mask = pygame.mask.from_surface(self.ship_img)
+        self.cool_down_counter = random.randrange(0, 59)
 
     def move(self, vel):
         self.y += vel
 
     def shoot(self):
-        if self.cool_down_counter == 0:
+        #if self.cool_down_counter == 0:
             laser = Laser(self.x-20, self.y, self.laser_img)
             self.lasers.append(laser)
-            self.cool_down_counter = 1
+            #self.cool_down_counter = 1
 
 
 def collide(obj1, obj2):
@@ -276,8 +277,15 @@ def main():
             enemy.move(enemy_vel)
             enemy.move_lasers(laser_vel, player)
 
-            if random.randrange(0, 2*60) == 1:
+           # if random.randrange(0, 2*60) == 1:
+            #    enemy.shoot()
+
+            if enemy.cool_down_counter==0:
                 enemy.shoot()
+                enemy.cool_down_counter = 120
+            else :
+                enemy.cool_down_counter -= 1
+
 
             if collide(enemy, player):
                 enemies.remove(enemy)
