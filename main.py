@@ -72,10 +72,9 @@ class Laser:
 class Ship:
     COOLDOWN = 30
 
-    def __init__(self, x, y, health=100):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.health = health
         self.ship_img = None
         self.laser_img = None
         self.lasers = []
@@ -93,7 +92,7 @@ class Ship:
             if laser.off_screen(HEIGHT):
                 self.lasers.remove(laser)
             elif laser.collision(obj):
-                obj.health -= 10
+                obj.recibir_golpe()
                 self.lasers.remove(laser)
 
     def cooldown(self):
@@ -117,12 +116,12 @@ class Ship:
 
 
 class Player(Ship):
-    def __init__(self, x, y, health=100):
-        super().__init__(x, y, health)
+    def __init__(self, x, y):
+        super().__init__(x, y)
         self.ship_img = pygame.transform.scale(NAVE_JUGADOR, (101,78))
         self.laser_img = YELLOW_LASER
         self.mask = pygame.mask.from_surface(self.ship_img)
-        self.max_health = health
+        self.vidas = 3
 
     def move_lasers(self, vel, objs):
         self.cooldown()
@@ -138,18 +137,12 @@ class Player(Ship):
                         if laser in self.lasers:
                             self.lasers.remove(laser)
 
-    def draw(self, window):
-        super().draw(window)
-        self.healthbar(window)
-
-    def healthbar(self, window):
-        pygame.draw.rect(window, (255,0,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
-        pygame.draw.rect(window, (0,255,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self.health/self.max_health), 10))
-
     def recibir_golpe(self):
         SONIDO_EXPLOSION_JUGADOR.play()
         self.x=300
         self.y=680
+        self.vidas -= 1
+
 
 
 class Enemy(Ship):
@@ -159,8 +152,8 @@ class Enemy(Ship):
                 "blue": (BLUE_SPACE_SHIP, BLUE_LASER)
                 }
 
-    def __init__(self, x, y, color, health=100):
-        super().__init__(x, y, health)
+    def __init__(self, x, y, color):
+        super().__init__(x, y)
         self.ship_img, self.laser_img = self.COLOR_MAP[color]
         self.mask = pygame.mask.from_surface(self.ship_img)
 
@@ -209,7 +202,6 @@ def pausa():
 def main():
     run = True
     FPS = 60
-    lives = 3
     main_font = pygame.font.SysFont("comicsans", 50)
     lost_font = pygame.font.SysFont("comicsans", 60)
 
@@ -230,9 +222,9 @@ def main():
     def redraw_window():
         WIN.blit(BG, (0,0))
         # draw text
-        lives_label = main_font.render(f"lives: {lives}", 1, (255,255,255))
+        cartel_vidas = main_font.render(f"vidas: {player.vidas}", 1, (255,255,255))
 
-        WIN.blit(lives_label, (10, 10))
+        WIN.blit(cartel_vidas, (10, 10))
 
         for enemy in enemies:
             enemy.draw(WIN)
@@ -249,7 +241,7 @@ def main():
         clock.tick(FPS)
         redraw_window()
 
-        if lives <= 0:
+        if player.vidas <= 0:
             lost = True
             lost_count += 1
 
@@ -290,8 +282,6 @@ def main():
             if collide(enemy, player):
                 enemies.remove(enemy)
                 player.recibir_golpe()
-                lives -= 1
-                player.health = 100
             if enemy.y + enemy.get_height() > HEIGHT:
                 enemies.remove(enemy)
 
