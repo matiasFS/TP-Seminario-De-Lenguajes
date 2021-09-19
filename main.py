@@ -48,6 +48,10 @@ SONIDO_LASER_ENEMIGO = pygame.mixer.Sound(os.path.join("assets", "sonido_laser3.
 SONIDO_EXPLOSION = pygame.mixer.Sound(os.path.join("assets", "sonido_explosion.wav"))
 SONIDO_EXPLOSION_JUGADOR = pygame.mixer.Sound(os.path.join("assets", "sonido_explosion_jugador.wav"))
 
+# Musica
+pygame.mixer.music.load(os.path.join("assets", "freedom_squad.mp3" ))
+pygame.mixer.music.set_volume(0.5)
+
 
 class Laser:
     def __init__(self, x, y, img):
@@ -91,7 +95,7 @@ class Ship:
             laser.move(vel)
             if laser.off_screen(HEIGHT):
                 self.lasers.remove(laser)
-            elif laser.collision(obj):
+            elif (laser.collision(obj)) and (obj.invulnerabilidad==False):
                 obj.recibir_golpe()
                 self.lasers.remove(laser)
 
@@ -118,10 +122,12 @@ class Ship:
 class Player(Ship):
     def __init__(self, x, y):
         super().__init__(x, y)
-        self.ship_img = pygame.transform.scale(NAVE_JUGADOR, (101,78))
+        self.ship_img = NAVE_JUGADOR
         self.laser_img = YELLOW_LASER
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.vidas = 3
+        self.invulnerabilidad = False
+        self.contadorInvulneravilidad = 0
 
     def move_lasers(self, vel, objs):
         self.cooldown()
@@ -139,6 +145,8 @@ class Player(Ship):
 
     def recibir_golpe(self):
         SONIDO_EXPLOSION_JUGADOR.play()
+        self.invulnerabilidad = True
+        self.contadorInvulneravilidad = 180
         self.x=300
         self.y=680
         self.vidas -= 1
@@ -186,6 +194,7 @@ def pausa():
                 exit()
             if event.type == pygame.KEYDOWN:   
                 if event.key == pygame.K_ESCAPE:
+                    pygame.mixer.music.set_volume(0.5)
                     pausado = False
                 if event.key == pygame.K_q:
                     pausado = False
@@ -220,6 +229,8 @@ def main():
     lost = False
     lost_count = 0
 
+    nave_visible = True
+
     def redraw_window():
         WIN.blit(BG, (0,0))
         # draw text
@@ -244,6 +255,7 @@ def main():
 
         if player.vidas <= 0:
             lost = True
+            pygame.mixer.music.stop()
             lost_count += 1
 
         if lost:
@@ -287,7 +299,7 @@ def main():
                 enemy.cool_down_counter -= 1
 
 
-            if collide(enemy, player):
+            if (collide(enemy, player))and(player.invulnerabilidad==False):
                 enemies.remove(enemy)
                 player.recibir_golpe()
             if enemy.y + enemy.get_height() > HEIGHT:
@@ -303,7 +315,16 @@ def main():
                 quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    pygame.mixer.music.set_volume(0.2)
                     pausa()
+
+
+        if (player.contadorInvulneravilidad==0 and player.invulnerabilidad==True):
+            player.invulnerabilidad = False
+        elif (player.contadorInvulneravilidad>0):
+            player.contadorInvulneravilidad-=1
+
+        
 
 
 def mensaje(msg, color, txt_x, txt_y):
@@ -340,7 +361,8 @@ while not fin_Juego:
                 fin_Juego = True     
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_1:
-                 main()
+                pygame.mixer.music.play(loops=-1)
+                main()
             if event.key == pygame.K_2:
                  instrucciones()    
             if event.key == pygame.K_3:
