@@ -26,12 +26,12 @@ fuente = pygame.font.SysFont(None, 50)
 clock = pygame.time.Clock()
 
 # Load images
-RED_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png"))
+NAVE_ENEMIGO_1 = pygame.transform.scale(pygame.image.load(os.path.join("assets", "enemy1_recortado.png")) , (76,70))
 GREEN_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_green_small.png"))
 BLUE_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_blue_small.png"))
 
 # Player player
-NAVE_JUGADOR = pygame.image.load(os.path.join("assets", "ship2 recortado.png"))
+NAVE_JUGADOR = pygame.transform.scale(pygame.image.load(os.path.join("assets", "ship2_recortado.png")), (101,78))
 
 # Lasers
 RED_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_red.png"))
@@ -46,6 +46,8 @@ BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background
 SONIDO_LASER_JUGADOR = pygame.mixer.Sound(os.path.join("assets", "sonido_laser2.wav"))
 SONIDO_LASER_ENEMIGO = pygame.mixer.Sound(os.path.join("assets", "sonido_laser3.wav"))
 SONIDO_EXPLOSION = pygame.mixer.Sound(os.path.join("assets", "sonido_explosion.wav"))
+SONIDO_EXPLOSION_JUGADOR = pygame.mixer.Sound(os.path.join("assets", "sonido_explosion_jugador.wav"))
+
 
 class Laser:
     def __init__(self, x, y, img):
@@ -144,10 +146,15 @@ class Player(Ship):
         pygame.draw.rect(window, (255,0,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
         pygame.draw.rect(window, (0,255,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self.health/self.max_health), 10))
 
+    def recibir_golpe(self):
+        SONIDO_EXPLOSION_JUGADOR.play()
+        self.x=300
+        self.y=680
+
 
 class Enemy(Ship):
     COLOR_MAP = {
-                "red": (RED_SPACE_SHIP, RED_LASER),
+                "red": (NAVE_ENEMIGO_1, RED_LASER),
                 "green": (GREEN_SPACE_SHIP, GREEN_LASER),
                 "blue": (BLUE_SPACE_SHIP, BLUE_LASER)
                 }
@@ -202,7 +209,7 @@ def pausa():
 def main():
     run = True
     FPS = 60
-    lives = 5
+    lives = 3
     main_font = pygame.font.SysFont("comicsans", 50)
     lost_font = pygame.font.SysFont("comicsans", 60)
 
@@ -233,7 +240,7 @@ def main():
         player.draw(WIN)
 
         if lost:
-            lost_label = lost_font.render("You Lost!!", 1, (255,255,255))
+            lost_label = lost_font.render("Fin Del Juego", 1, (255,255,255))
             WIN.blit(lost_label, (WIDTH/2 - lost_label.get_width()/2, 350))
 
         pygame.display.update()
@@ -281,12 +288,10 @@ def main():
                 enemy.shoot()
 
             if collide(enemy, player):
-                player.health -= 10
                 enemies.remove(enemy)
-            if(player.health == 0):
-                    lives -= 1
-                    player.health = 100
-            
+                player.recibir_golpe()
+                lives -= 1
+                player.health = 100
             if enemy.y + enemy.get_height() > HEIGHT:
                 enemies.remove(enemy)
 
