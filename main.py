@@ -28,7 +28,7 @@ clock = pygame.time.Clock()
 # Load images
 NAVE_ENEMIGO_1 = pygame.transform.scale(pygame.image.load(os.path.join("assets", "enemy1_recortado.png")) , (76,70))
 GREEN_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_green_small.png"))
-BLUE_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_blue_small.png"))
+BLUE_SPACE_SHIP = pygame.transform.scale(pygame.image.load(os.path.join("assets", "Enemy2-recortado.png")) , (50,82))
 
 # Player player
 NAVE_JUGADOR = pygame.transform.scale(pygame.image.load(os.path.join("assets", "ship2_recortado.png")), (101,78))
