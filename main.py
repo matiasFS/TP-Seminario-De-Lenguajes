@@ -52,7 +52,6 @@ SONIDO_EXPLOSION_JUGADOR = pygame.mixer.Sound(os.path.join("assets", "sonido_exp
 pygame.mixer.music.load(os.path.join("assets", "freedom_squad.mp3" ))
 pygame.mixer.music.set_volume(0.5)
 
-
 class Laser:
     def __init__(self, x, y, img):
         self.x = x
@@ -128,7 +127,7 @@ class Player(Ship):
         self.vidas = 3
         self.invulnerabilidad = False
         self.contadorInvulneravilidad = 0
-
+        self.score = 0
     def move_lasers(self, vel, objs):
         self.cooldown()
         for laser in self.lasers:
@@ -139,7 +138,8 @@ class Player(Ship):
                 for obj in objs:
                     if laser.collision(obj):   ## Colision del laser con el enemigo
                         SONIDO_EXPLOSION.play()
-                        objs.remove(obj)      
+                        objs.remove(obj)    
+                        self.score += random.randrange(100, 200)
                         if laser in self.lasers:
                             self.lasers.remove(laser)
 
@@ -181,6 +181,29 @@ def collide(obj1, obj2):
     offset_y = obj2.y - obj1.y
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
+def puntajeAlto():
+    WIN.fill(NEGRO)
+    puntaje_font = pygame.font.SysFont("comicsans", 50)
+    cartel_puntaje = puntaje_font.render("1. " + max_score(), 1, (255,255,255))
+    WIN.blit(cartel_puntaje, (WIDTH/2 - cartel_puntaje.get_width()/2, 350))
+    pygame.display.update()
+    time.sleep(4)
+############## ARCHIVO DE PUNTAJE MÁS ALTO ########################
+def update_score(nscore):
+    score = max_score()
+
+    with open('scores.txt', 'w') as f:
+        if int(score) > nscore:
+            f.write(str(score))
+        else:
+            f.write(str(nscore))
+def max_score():
+    with open('scores.txt', 'r') as f:
+        lines = f.readlines()
+        score = lines[0].strip()
+
+    return score
+######## FIN ARCHIVO DE PUNTAJE MÁS ALTO ##########
 
 def pausa():
 
@@ -228,16 +251,16 @@ def main():
 
     lost = False
     lost_count = 0
-
+    global score
     nave_visible = True
 
     def redraw_window():
         WIN.blit(BG, (0,0))
         # draw text
-        cartel_vidas = main_font.render(f"vidas: {player.vidas}", 1, (255,255,255))
-
+        cartel_vidas = main_font.render(f"Vidas: {player.vidas}", 1, (255,255,255))
+        cartel_score = main_font.render(f"Puntaje: {player.score}", 1, (255,255,255))
         WIN.blit(cartel_vidas, (10, 10))
-
+        WIN.blit(cartel_score, (420,10))
         for enemy in enemies:
             enemy.draw(WIN)
 
@@ -246,7 +269,7 @@ def main():
         if lost:
             lost_label = lost_font.render("Fin Del Juego", 1, (255,255,255))
             WIN.blit(lost_label, (WIDTH/2 - lost_label.get_width()/2, 350))
-
+            update_score(player.score)
         pygame.display.update()
 
     while run:
@@ -337,7 +360,8 @@ def menu_Comienzo():
     mensaje("JUEGO GALAGA", VIOLETA, 200, 110)
     mensaje("[1] Comenzar a Jugar", BLANCO, 200, 200)
     mensaje("[2] Instrucciones", BLANCO, 200, 300)
-    mensaje("[3] Salir", BLANCO, 200, 400)
+    mensaje("[3] Puntaje más alto", BLANCO, 200, 400)
+    mensaje("[4] Salir", BLANCO, 200, 500)
 
 
     pygame.display.update()
@@ -346,9 +370,9 @@ def menu_Comienzo():
 def instrucciones():
     WIN.fill(NEGRO)
     mensaje("INSTRUCCIONES", VIOLETA, 200, 100)
-    mensaje("-Teclas de acción: [W][A][S][D][ESPACIO].", BLANCO, 20, 200)
-    mensaje("-Presionar ESC para pausar.", BLANCO, 20, 300)
-    mensaje("-Si una bala te impacta, perdés vida.", BLANCO, 20, 400)
+    mensaje("- Teclas de acción: [W][A][S][D][ESPACIO].", BLANCO, 20, 200)
+    mensaje("- Presionar ESC para pausar.", BLANCO, 20, 300)
+    mensaje("- Si una bala te impacta, perdés vida.", BLANCO, 20, 400)
     pygame.display.update()
     time.sleep(5)
 
@@ -366,6 +390,8 @@ while not fin_Juego:
             if event.key == pygame.K_2:
                  instrucciones()    
             if event.key == pygame.K_3:
+                puntajeAlto()
+            if event.key == pygame.K_4:
                 pygame.display.quit()
                 fin_Juego = True
 
