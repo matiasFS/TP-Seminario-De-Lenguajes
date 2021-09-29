@@ -32,6 +32,8 @@ BLUE_SPACE_SHIP = pygame.transform.scale(pygame.image.load(os.path.join("assets"
 
 # Player player
 NAVE_JUGADOR = pygame.transform.scale(pygame.image.load(os.path.join("assets", "ship2_recortado.png")), (101,78))
+NAVE_JUGADOR_IZQ = pygame.transform.scale(pygame.image.load(os.path.join("assets", "Nave frontal izq.png")), (101,78))
+NAVE_JUGADOR_DER = pygame.transform.scale(pygame.image.load(os.path.join("assets", "Nave frontal der.png")), (101,78))
 
 # Lasers
 RED_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_red.png"))
@@ -128,6 +130,16 @@ class Player(Ship):
         self.invulnerabilidad = False
         self.contadorInvulneravilidad = 0
         self.score = 0
+
+    def move_left(self):
+        self.ship_img = NAVE_JUGADOR_IZQ
+
+    def move_right(self):
+        self.ship_img = NAVE_JUGADOR_DER
+
+    def stand_by(self):
+        self.ship_img = NAVE_JUGADOR
+
     def move_lasers(self, vel, objs):
         self.cooldown()
         for laser in self.lasers:
@@ -297,8 +309,15 @@ def main():
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a] and player.x - player_vel > 0: # left
+        # Se agrego movimiento lateral izquierdo
+            player.move_left()
             player.x -= player_vel
+    #Se agrego el Stand-By, devuelve la nave a su posicion orignal si no se aprieta ninguna tecla de mov
+        else:
+            player.stand_by()
         if keys[pygame.K_d] and player.x + player_vel + player.get_width() < WIDTH: # right
+            # Se agrego movimiento lateral derecho
+            player.move_right()
             player.x += player_vel
         if keys[pygame.K_w] and player.y - player_vel > 0: # up
             player.y -= player_vel
