@@ -54,6 +54,7 @@ SONIDO_EXPLOSION_JUGADOR = pygame.mixer.Sound(os.path.join("assets", "sonido_exp
 pygame.mixer.music.load(os.path.join("assets", "freedom_squad.mp3" ))
 pygame.mixer.music.set_volume(0.5)
 
+
 class Laser:
     def __init__(self, x, y, img):
         self.x = x
@@ -200,6 +201,8 @@ def puntajeAlto():
     WIN.blit(cartel_puntaje, (WIDTH/2 - cartel_puntaje.get_width()/2, 350))
     pygame.display.update()
     time.sleep(4)
+
+
 ############## ARCHIVO DE PUNTAJE MÁS ALTO ########################
 def update_score(nscore):
     score = max_score()
