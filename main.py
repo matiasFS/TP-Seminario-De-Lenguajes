@@ -1,7 +1,7 @@
-import pygame
-import os
+
 import time
-import random
+from models.player import *
+from models.enemy import *
 
 from pygame.constants import KEYDOWN
 pygame.font.init()
@@ -26,174 +26,19 @@ fuente = pygame.font.SysFont(None, 50)
 clock = pygame.time.Clock()
 
 # Load images
-NAVE_ENEMIGO_1 = pygame.transform.scale(pygame.image.load(os.path.join("assets", "enemy1_recortado.png")) , (76,70))
-GREEN_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_green_small.png"))
-BLUE_SPACE_SHIP = pygame.transform.scale(pygame.image.load(os.path.join("assets", "Enemy2-recortado.png")) , (50,82))
-
-# Player player
-NAVE_JUGADOR = pygame.transform.scale(pygame.image.load(os.path.join("assets", "ship2_recortado.png")), (101,78))
-NAVE_JUGADOR_IZQ = pygame.transform.scale(pygame.image.load(os.path.join("assets", "Nave frontal izq.png")), (101,78))
-NAVE_JUGADOR_DER = pygame.transform.scale(pygame.image.load(os.path.join("assets", "Nave frontal der.png")), (101,78))
-
-# Lasers
-RED_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_red.png"))
-GREEN_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_green.png"))
-BLUE_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png"))
-YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
 
 # Background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))
-FD = pygame.transform.scale(pygame.image.load(os.path.join("assets", "Fondo.png")), (WIDTH, HEIGHT))
 
-# Sonidos
-SONIDO_LASER_JUGADOR = pygame.mixer.Sound(os.path.join("assets", "sonido_laser2.wav"))
+
 SONIDO_LASER_ENEMIGO = pygame.mixer.Sound(os.path.join("assets", "sonido_laser3.wav"))
 SONIDO_EXPLOSION = pygame.mixer.Sound(os.path.join("assets", "sonido_explosion.wav"))
-SONIDO_EXPLOSION_JUGADOR = pygame.mixer.Sound(os.path.join("assets", "sonido_explosion_jugador.wav"))
+
 
 # Musica
 pygame.mixer.music.load(os.path.join("assets", "freedom_squad.mp3" ))
-pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.set_volume(0.1)
 
-
-class Laser:
-    def __init__(self, x, y, img):
-        self.x = x
-        self.y = y
-        self.img = img
-        self.mask = pygame.mask.from_surface(self.img)
-
-    def draw(self, window):
-        window.blit(self.img, (self.x, self.y))
-
-    def move(self, vel):
-        self.y += vel
-
-    def off_screen(self, height):
-        return not(self.y <= height and self.y >= 0)
-
-    def collision(self, obj):
-        return collide(self, obj)
-
-
-class Ship:
-    COOLDOWN = 30
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.ship_img = None
-        self.laser_img = None
-        self.lasers = []
-        self.cool_down_counter = 0
-
-    def draw(self, window):
-        window.blit(self.ship_img, (self.x, self.y))
-        for laser in self.lasers:
-            laser.draw(window)
-
-    def move_lasers(self, vel, obj):
-        #self.cooldown()
-        for laser in self.lasers:
-            laser.move(vel)
-            if laser.off_screen(HEIGHT):
-                self.lasers.remove(laser)
-            elif (laser.collision(obj)) and (obj.invulnerabilidad==False):
-                obj.recibir_golpe()
-                self.lasers.remove(laser)
-
-    def cooldown(self):
-        if self.cool_down_counter >= self.COOLDOWN:
-            self.cool_down_counter = 0
-        elif self.cool_down_counter > 0:
-            self.cool_down_counter += 1
-
-    def shoot(self):
-        if self.cool_down_counter == 0:
-            laser = Laser(self.x+3, self.y, self.laser_img)
-            SONIDO_LASER_JUGADOR.play()
-            self.lasers.append(laser)
-            self.cool_down_counter = 1
-
-    def get_width(self):
-        return self.ship_img.get_width()
-
-    def get_height(self):
-        return self.ship_img.get_height()
-
-
-class Player(Ship):
-    def __init__(self, x, y):
-        super().__init__(x, y)
-        self.ship_img = NAVE_JUGADOR
-        self.laser_img = YELLOW_LASER
-        self.mask = pygame.mask.from_surface(self.ship_img)
-        self.vidas = 3
-        self.invulnerabilidad = False
-        self.contadorInvulneravilidad = 0
-        self.score = 0
-
-    def move_left(self):
-        self.ship_img = NAVE_JUGADOR_IZQ
-
-    def move_right(self):
-        self.ship_img = NAVE_JUGADOR_DER
-
-    def stand_by(self):
-        self.ship_img = NAVE_JUGADOR
-
-    def move_lasers(self, vel, objs):
-        self.cooldown()
-        for laser in self.lasers:
-            laser.move(vel)
-            if laser.off_screen(HEIGHT):
-                self.lasers.remove(laser)
-            else:
-                for obj in objs:
-                    if laser.collision(obj):   ## Colision del laser con el enemigo
-                        SONIDO_EXPLOSION.play()
-                        objs.remove(obj)    
-                        self.score += random.randrange(100, 200)
-                        if laser in self.lasers:
-                            self.lasers.remove(laser)
-
-    def recibir_golpe(self):
-        SONIDO_EXPLOSION_JUGADOR.play()
-        self.invulnerabilidad = True
-        self.contadorInvulneravilidad = 180
-        self.x=300
-        self.y=680
-        self.vidas -= 1
-
-
-
-class Enemy(Ship):
-    COLOR_MAP = {
-                "red": (NAVE_ENEMIGO_1, RED_LASER),
-                "green": (GREEN_SPACE_SHIP, GREEN_LASER),
-                "blue": (BLUE_SPACE_SHIP, BLUE_LASER)
-                }
-
-    def __init__(self, x, y, color):
-        super().__init__(x, y)
-        self.ship_img, self.laser_img = self.COLOR_MAP[color]
-        self.mask = pygame.mask.from_surface(self.ship_img)
-        self.cool_down_counter = random.randrange(0, 59)
-
-    def move(self, vel):
-        self.y += vel
-
-    def shoot(self):
-        #if self.cool_down_counter == 0:
-            laser = Laser(self.x-20, self.y, self.laser_img)
-            self.lasers.append(laser)
-            #self.cool_down_counter = 1
-
-
-def collide(obj1, obj2):
-    offset_x = obj2.x - obj1.x
-    offset_y = obj2.y - obj1.y
-    return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
 def puntajeAlto():
     WIN.fill(NEGRO)
@@ -202,8 +47,6 @@ def puntajeAlto():
     WIN.blit(cartel_puntaje, (WIDTH/2 - cartel_puntaje.get_width()/2, 350))
     pygame.display.update()
     time.sleep(4)
-
-
 ############## ARCHIVO DE PUNTAJE MÁS ALTO ########################
 def update_score(nscore):
     score = max_score()
@@ -233,7 +76,7 @@ def pausa():
                 exit()
             if event.type == pygame.KEYDOWN:   
                 if event.key == pygame.K_ESCAPE:
-                    pygame.mixer.music.set_volume(0.5)
+                    pygame.mixer.music.set_volume(0.1)
                     pausado = False
                 if event.key == pygame.K_q:
                     pausado = False
@@ -271,7 +114,7 @@ def main():
     nave_visible = True
 
     def redraw_window():
-        WIN.blit(FD, (0,0))
+        WIN.blit(BG, (0,0))
         # draw text
         cartel_vidas = main_font.render(f"Vidas: {player.vidas}", 1, (255,255,255))
         cartel_score = main_font.render(f"Puntaje: {player.score}", 1, (255,255,255))
@@ -361,7 +204,7 @@ def main():
                 quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.mixer.music.set_volume(0.2)
+                    pygame.mixer.music.set_volume(0.1)
                     pausa()
 
 
