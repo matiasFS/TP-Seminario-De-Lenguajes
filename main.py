@@ -29,7 +29,7 @@ clock = pygame.time.Clock()
 
 # Background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))
-
+FD = pygame.transform.scale(pygame.image.load(os.path.join("assets", "Fondo.png")), (WIDTH, HEIGHT))
 
 SONIDO_LASER_ENEMIGO = pygame.mixer.Sound(os.path.join("assets", "sonido_laser3.wav"))
 SONIDO_EXPLOSION = pygame.mixer.Sound(os.path.join("assets", "sonido_explosion.wav"))
@@ -114,7 +114,7 @@ def main():
     nave_visible = True
 
     def redraw_window():
-        WIN.blit(BG, (0,0))
+        WIN.blit(FD, (0,0))
         # draw text
         cartel_vidas = main_font.render(f"Vidas: {player.vidas}", 1, (255,255,255))
         cartel_score = main_font.render(f"Puntaje: {player.score}", 1, (255,255,255))
