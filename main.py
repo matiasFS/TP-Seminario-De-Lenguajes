@@ -37,7 +37,7 @@ SONIDO_EXPLOSION = pygame.mixer.Sound(os.path.join("assets", "sonido_explosion.w
 
 # Musica
 pygame.mixer.music.load(os.path.join("assets", "freedom_squad.mp3" ))
-pygame.mixer.music.set_volume(0.1)
+pygame.mixer.music.set_volume(0.5)
 
 
 def puntajeAlto():
@@ -76,7 +76,7 @@ def pausa():
                 exit()
             if event.type == pygame.KEYDOWN:   
                 if event.key == pygame.K_ESCAPE:
-                    pygame.mixer.music.set_volume(0.1)
+                    pygame.mixer.music.set_volume(0.5)
                     pausado = False
                 if event.key == pygame.K_q:
                     pausado = False
@@ -204,7 +204,7 @@ def main():
                 quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.mixer.music.set_volume(0.1)
+                    pygame.mixer.music.set_volume(0.2)
                     pausa()
 
 
