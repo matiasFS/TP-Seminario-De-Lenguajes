@@ -101,6 +101,10 @@ def main():
     wave_length = 5
     enemy_vel = 1
 
+    oleadas = 0
+    dificultad_incrementada = True
+    frecuencia_disparo = 1
+
     player_vel = 5
     laser_vel = 5
 
@@ -135,6 +139,8 @@ def main():
         clock.tick(FPS)
         redraw_window()
 
+        
+
         if player.vidas <= 0:
             lost = True
             pygame.mixer.music.stop()
@@ -147,12 +153,29 @@ def main():
                 continue
 
         if len(enemies) == 0:
-            wave_length += 5
+            wave_length += 2
+            oleadas += 1
             for i in range(wave_length):
                 enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1500, -100), random.choice(["red", "blue", "green"]))
                 enemies.append(enemy)
 
+        # incrementacion de dificultad
+        if (enemy_vel<5):
+            if (oleadas % 10 == 0 and oleadas != 0):
+                if (not dificultad_incrementada):
+                    enemy_vel += 1
+                    laser_vel += 1
+                    frecuencia_disparo += 1
+                    dificultad_incrementada = True
+            elif (oleadas % 5 == 0 and oleadas != 0):
+                if (not dificultad_incrementada):
+                    enemy_vel += 1
+                    laser_vel += 1
+                    dificultad_incrementada = True
+            else:
+                dificultad_incrementada = False
 
+            
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a] and player.x - player_vel > 0: # left
@@ -173,25 +196,26 @@ def main():
         if keys[pygame.K_SPACE]:
             player.shoot()    
 
-
+        #sistema de movimiento de enemigos y disparo de laseres
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
             enemy.move_lasers(laser_vel, player)
 
-           # if random.randrange(0, 2*60) == 1:
-            #    enemy.shoot()
-
-            if enemy.cool_down_counter==0:
+            if (enemy.cool_down_counter<=0 and enemy.tipo_de_nave!=1):
                 enemy.shoot()
-                enemy.cool_down_counter = 120
+                if (enemy.tipo_de_nave==2):
+                    enemy.cool_down_counter = 90
+                else:    
+                    enemy.cool_down_counter = 120
             else :
-                enemy.cool_down_counter -= 1
-
+                enemy.cool_down_counter -= 1*frecuencia_disparo
 
             if (collide(enemy, player))and(player.invulnerabilidad==False):
                 enemies.remove(enemy)
                 player.recibir_golpe()
-            if enemy.y + enemy.get_height() > HEIGHT:
+            if enemy.y + enemy.get_height() > HEIGHT+100:
+                enemies.remove(enemy)
+            if (enemy.x + enemy.get_width() > WIDTH+75)or(enemy.x < -75):
                 enemies.remove(enemy)
 
         player.move_lasers(-laser_vel, enemies)

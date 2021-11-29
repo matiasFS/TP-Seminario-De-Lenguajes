@@ -27,13 +27,40 @@ class Enemy(Ship):
         self.ship_img, self.laser_img = self.COLOR_MAP[color]
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.cool_down_counter = random.randrange(0, 59)
+        self.tipo_de_nave = None
+        self.cooldown_movimiento = 0
+        self.lado = None
+        if (x<350):
+            self.lado=1
+        else:
+            self.lado=2
+        if (color=="red"):
+            self.tipo_de_nave = 1
+        elif (color=="green"):
+            self.tipo_de_nave = 2
+        else:
+            self.tipo_de_nave = 3
+
 
     def move(self, vel):
-        self.y += vel
+        if (self.tipo_de_nave==1):
+            self.y += vel*3
+        elif (self.tipo_de_nave==2):
+            self.cooldown_movimiento += 1
+            self.y += vel
+            if (self.lado==1):
+                if (self.cooldown_movimiento==3):    
+                    self.x += vel
+                    self.cooldown_movimiento=0
+            else:
+                if (self.cooldown_movimiento==3):    
+                    self.x -= vel
+                    self.cooldown_movimiento=0
+        else:
+            self.y += vel
 
     def shoot(self):
-        #if self.cool_down_counter == 0:
             laser = Laser(self.x-20, self.y, self.laser_img)
             self.lasers.append(laser)
-            #self.cool_down_counter = 1
+
 
